@@ -349,7 +349,6 @@ class billClass:
         for row in self.cart_list:
             self.bill_amt=self.bill_amt+(float(row[2])*int(row[3]))
 
-        self.discount=(self.bill_amt*5)/100
         self.net_pay=self.bill_amt-self.discount
         self.lbl_amount.config(text=f'Bill Amnt.\n{str(self.bill_amt)}')
         self.lbl_net_pay.config(text=f'Net Pay\n{str(self.net_pay)}')

@@ -40,7 +40,7 @@ class Login_System:
         hr=Label(login_frame,bg="lightgray").place(x=50,y=370,width=250,height=2)
         or_=Label(login_frame,text="OR",bg="white",fg="lightgray",font=("times new roman",15,"bold")).place(x=150,y=355)
 
-        btl_forget=Button(login_frame,text="Forget Password?",font=("times new roman",15),bg="white",fg="#00759E",bd=0,activebackground="white",activeforeground="#00759E",cursor="hand2").place(x=100,y=390)
+        btl_forget=Button(login_frame,text="Forget Password?",command=self.forget_window,font=("times new roman",15),bg="white",fg="#00759E",bd=0,activebackground="white",activeforeground="#00759E",cursor="hand2").place(x=100,y=390)
 
         #--fram2--
         register_frame=Frame(self.root,bd=2,relief=RIDGE,bg="white")
@@ -107,7 +107,53 @@ class Login_System:
         except Exception as ex:
             messagebox.showerror("Error",f"Error due to : {str(ex)}", parent=self.root)
 
-    
+    def forget_window(self):
+        con=sqlite3.connect(database=r'ims.db')
+        cur=con.cursor()
+        try:
+            if self.employee_id.get()=="":
+                messagebox.showerror('Error',"Employee ID must be required",parent=self.root)
+            else:
+                cur.execute("select email from employee where eid=?",(self.employee_id.get(),))
+                email=cur.fetchone()
+                if email==None:
+                    messagebox.showerror('Error',"Invalid Invalid Employee ID, try again",parent=self.root)
+                else:
+                    #-----Forget Window
+                    self.var_otp=StringVar()
+                    self.var_new_pass=StringVar()
+                    self.var_conf_pass=StringVar()
+
+                    #call send_email_function()
+                    chk=self.send_email(email[0])
+                    if chk=='f':
+                        messagebox.showerror("Error","Connection Error,try again",parent=self.root)
+                    else:
+                        self.forget_win=Toplevel(self.root)
+                        self.forget_win.title('RESET PASSWORD')
+                        self.forget_win.geometry('400x350+500+100')
+                        self.forget_win.focus_force()
+
+                        title=Label(self.forget_win,text='Reset Password',font=('goudy old style',15,'bold'),bg="#3f51b5",fg="white").pack(side=TOP,fill=X)
+
+                        lbl_reset=Label(self.forget_win,text="Enter OTP Sent on Registered Email", font=("times new roman",15)).place(x=20,y=60)
+                        txt_reset=Entry(self.forget_win,textvariable=self.var_otp,font=("times new roman",15),bg='lightyellow').place(x=20,y=100,width=250,height=30)
+                        
+                        self.btn_reset=Button(self.forget_win,text="SUBMIT",command=self.validate_otp,font=("times new roman",15),bg='lightblue')
+                        self.btn_reset.place(x=280,y=98,width=100,height=30)
+
+                        lbl_new_pass=Label(self.forget_win,text="New Password", font=("times new roman",15)).place(x=20,y=160)
+                        txt_new_pass=Entry(self.forget_win,textvariable=self.var_new_pass,show='*',font=("times new roman",15),bg='lightyellow').place(x=20,y=190,width=250,height=30)
+                        
+                        lbl_conf_pass=Label(self.forget_win,text="Confirm Password", font=("times new roman",15)).place(x=20,y=225)
+                        txt_conf_pass=Entry(self.forget_win,textvariable=self.var_conf_pass,show='*',font=("times new roman",15),bg='lightyellow').place(x=20,y=255,width=250,height=30)
+                        
+                        self.btn_update=Button(self.forget_win,text="Update",command=self.update_password,state=DISABLED,font=("times new roman",15),bg='lightblue')
+                        self.btn_update.place(x=150,y=300,width=100,height=30)
+
+        except Exception as ex:
+            messagebox.showerror("Error",f"Error due to : {str(ex)}", parent=self.root)
+
     
     def update_password(self):
         if self.var_new_pass.get()=="" or self.var_conf_pass.get()=="":

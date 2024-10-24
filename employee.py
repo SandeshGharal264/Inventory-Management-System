@@ -91,7 +91,7 @@ class employeeClass:
 
         #buttons
         btn_add=Button(self.root,text="Save",command=self.add,font=("goudy old style",15),bg="#2196f3",fg="white",cursor="hand2").place(x=500,y=305,width=110,height=28)
-        btn_update=Button(self.root,text="Update",font=("goudy old style",15),bg="#4caf50",fg="white",cursor="hand2").place(x=620,y=305,width=110,height=28)
+        btn_update=Button(self.root,text="Update",command=self.update,font=("goudy old style",15),bg="#4caf50",fg="white",cursor="hand2").place(x=620,y=305,width=110,height=28)
         btn_delete=Button(self.root,text="Delete",command=self.delete,font=("goudy old style",15),bg="#f44336",fg="white",cursor="hand2").place(x=740,y=305,width=110,height=28)
         btn_clear=Button(self.root,text="Clear",command=self.clear,font=("goudy old style",15),bg="#607d8b",fg="white",cursor="hand2").place(x=860,y=305,width=110,height=28)
 
@@ -213,6 +213,41 @@ class employeeClass:
         self.txt_address.delete('1.0',END)
         self.txt_address.insert(END,row[9]),
         self.var_salary.set(row[10])
+
+
+    def update(self):
+        con=sqlite3.connect(database=r'ims.db')
+        cur=con.cursor()
+        try:
+            if self.var_emp_id.get()=="":
+                messagebox.showerror("Error","Employee ID must be required",parent=self.root)
+            else:
+                cur.execute("select * from employee where eid=?",(self.var_emp_id.get(),))
+                row=cur.fetchone()
+                if row==None:
+                    messagebox.showerror("Error","Invalid Employee ID",parent=self.root)
+                else:
+                    cur.execute("Update employee set name=?,email=?,gender=?,contact=?,dob=?,doj=?,pass=?,utype=?,address=?,salary=? where eid=?",(
+                                                self.var_name.get(),
+                                                self.var_email.get(),
+                                                self.var_gender.get(),
+                                                self.var_contact.get(), 
+                                                self.var_dob.get(),
+                                                self.var_doj.get(),
+                                                self.var_pass.get(),
+                                                self.var_utype.get(),
+                                                self.txt_address.get('1.0',END),
+                                                self.var_salary.get(),
+                                                self.var_emp_id.get()
+
+                    ))
+                    con.commit()
+                    messagebox.showinfo("Success","Employee Updated Successfully",parent=self.root)
+                    self.show()
+
+
+        except Exception as ex:
+            messagebox.showerror("Error",f"Error due to : {str(ex)}", parent=self.root)
 
 
     def delete(self):
